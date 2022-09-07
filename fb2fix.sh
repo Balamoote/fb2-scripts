@@ -68,7 +68,8 @@ case $key in
         rm -rf $suf-"$book"
 	# Валидация и раскраска отчёта
 	xmllint --nonet --noout --schema "scriptdb/fb2/schema/FictionBook.xsd" "$book" 2>&1 | \
-            sed -r "s=^.*\svalidates$=`printf "\e[32m&\e[0m"`=g
+            sed -r "s=\{http://www\.gribuser\.ru/xml/fictionbook/2\.0\}==gI
+		    s=^.*\svalidates$=`printf "\e[32m&\e[0m"`=g
                     s=^.*\sfails to validate.*$=`printf "\e[31m&\e[0m"`=g
                     s=^.*\sSchemas validity error.*$=`printf "\e[93m&\e[0m"`=g
                     s=^.*\sparser error.*$=`printf "\e[93m&\e[0m"`=g
