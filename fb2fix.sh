@@ -26,7 +26,7 @@ case $key in
         sed_pre="scriptdb/fb2/06_gc_pre.sed"
         sed_main="scriptdb/fb2/06_gc_main.sed"
         sed_post="scriptdb/fb2/06_gc_post.sed"
-    	sed_cyrlat="scriptdb/fb2/06_cyrlat.sed"
+    	sed_latcyr="scriptdb/fb2/06_latcyr.sed"
         awk_cleaner="scriptdb/fb2/cleaner.awk"
         awk_indent="scriptdb/fb2/indent.awk"
         backup="$book".$suf
@@ -61,7 +61,7 @@ case $key in
 
 	# Кирилица в латинице
 	if grep -q -m 1 "[А-яЁё]" $suf-"$book"/text-book.txt; then
-	   for i in {1..3}; do sed -i -rf "$sed_cyrlat" $suf-"$book"/text-book.txt; done
+	   for i in {1..2}; do sed -i -rf "$sed_latcyr" $suf-"$book"/text-book.txt; done
 	fi
 
         cat $suf-"$book"/text-book.txt $suf-"$book"/binary-book.txt > "$book"
@@ -73,7 +73,7 @@ case $key in
                     s=^.*\sSchemas validity error.*$=`printf "\e[93m&\e[0m"`=g
                     s=^.*\sparser error.*$=`printf "\e[93m&\e[0m"`=g
                     "
-        
+       # Сравнение исходного и обработанного файлов, если не нужно - закомментировать следующие 3 строки. 
         sed -r 's/\xc2\xa0/ /g' "$book" > "$book".gc
         $edi -d "$book".gc "$backup"
         rm "$book".gc
