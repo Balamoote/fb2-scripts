@@ -59,9 +59,13 @@ case $key in
             latcyr=$(grep -e "[ХІС][CILMVX]" -e "[CILMVX][ХІС]" -e "ХХ" -e "ІІ" $suf-"$book"/text-book.txt | wc -l)
         done; fi
 
-	# Кирилица в латинице
-	if grep -q -m 1 "[А-яЁё]" $suf-"$book"/text-book.txt; then
-	   for i in {1..2}; do sed -i -rf "$sed_latcyr" $suf-"$book"/text-book.txt; done
+	# Кирилица в латинице: искать до упора
+    if grep -q -m 1 "[А-яЁё]" $suf-"$book"/text-book.txt; then mdchk0="foo"
+	    until [ "$mdchk0" == "$mdchk1" ]; do
+            mdchk0=$(md5sum $suf-"$book"/text-book.txt | awk '{print $1}')
+            sed -i -rf "$sed_latcyr" $suf-"$book"/text-book.txt;
+            mdchk1=$(md5sum $suf-"$book"/text-book.txt | awk '{print $1}')
+        done
 	fi
 
         cat $suf-"$book"/text-book.txt $suf-"$book"/binary-book.txt > "$book"
