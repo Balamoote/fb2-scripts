@@ -60,7 +60,7 @@ case $key in
         done; fi
 
 	# Кирилица в латинице: искать до упора
-    if grep -q -m 1 "[А-яЁё]" $suf-"$book"/text-book.txt; then mdchk0="foo"
+    if grep -q -m 1 "[аА-ԯЀЁЂЃЄЅІЇЈЉ]" $suf-"$book"/text-book.txt; then mdchk0="foo"
 	    until [ "$mdchk0" == "$mdchk1" ]; do
             mdchk0=$(md5sum $suf-"$book"/text-book.txt | awk '{print $1}')
             sed -i -rf "$sed_latcyr" $suf-"$book"/text-book.txt;
