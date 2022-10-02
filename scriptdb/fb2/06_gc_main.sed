@@ -14,11 +14,17 @@ s=[[:space:]\xc2\xa0]+$==g
 s=\&(gt|lt|amp);=\x01\1\x02=gI
 
 # Перевести тэги в нижний регистр
-s=(</?)([-a-z]+)(/?[ >])=\1\L\2\E\3=gI
+s=(</?)([- a-z]+)(/?[ >])=\1\L\2\E\3=gI
 s=(/a)(>)=\l\1\2=gI
 2 s=<fictionbook\s=<FictionBook =gI
 $ s=</fictionbook>=</FictionBook>=gI
 #s=($aib)=\L&=gI
+
+# удаление двойных emphasis и strong
+s=<emphasis><emphasis>=<emphasis>=gI
+s=</emphasis></emphasis>=</emphasis>=gI
+s=<strong><strong>=<strong>=gI
+s=</strong></strong>=</strong>=gI
 
 # Разделение тэгов, починка и удаление лишних
 s=<empty-line></empty-line>=<empty-line/>=gI
