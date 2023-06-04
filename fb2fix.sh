@@ -7,7 +7,7 @@ key=$1
 book=$2
 
 # Установка редактора: vim или neovim
-edi=$(sed -rn 's/^editor\s*=\s*(vim|nvim)$/\1/ p' scriptdb/settings.ini)
+edi=$(sed -rn 's/^\s*editor\s*=\s*(vim|nvim)\s*$/\1/ p' scriptdb/settings.ini)
 
 #массив со списком ключей
 p="-gc -06 -stal -st0 -ston -st1 -stln -st2 -stim -st3"
