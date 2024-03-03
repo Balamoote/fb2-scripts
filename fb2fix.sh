@@ -61,7 +61,7 @@ case $key in
             latcyr=$(grep -e "[ХІСМ][CILMVX]" -e "[CILMVX][ХІС]" -e "ХХ" -e "ІІ" $suf-"$book"/text-book.txt | wc -l)
         done; fi
 
-	# Кирилица в латинице: искать до упора
+	# Кириллица в латинице: искать до упора
     if grep -q -m 1 "[аА-ԯЀЁЂЃЄЅІЇЈЉ]" $suf-"$book"/text-book.txt; then mdchk0="foo"
 	    until [ "$mdchk0" == "$mdchk1" ]; do
             mdchk0=$(md5sum $suf-"$book"/text-book.txt | awk '{print $1}')

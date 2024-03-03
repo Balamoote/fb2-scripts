@@ -4,8 +4,8 @@ BEGIN { # Скрипт расстановки пробелов в начале �
 	tag2 = "annotation author body coverpage description document-info history publish-info src-title-info title-info translator";
 	sticky = "FictionBook binary"
 
-	split (tag1, ntags1, " "); for (i in ntags1) { s = "<" ntags1[i]; f = "</" ntags1[i]; stags1[s] = s; ftags1[f] = f };
-	split (tag2, ntags2, " "); for (i in ntags2) { s = "<" ntags2[i]; f = "</" ntags2[i]; stags2[s] = s; ftags2[f] = f };
+	split(tag1, ntags1, " "); for (i in ntags1) { s = "<" ntags1[i]; f = "</" ntags1[i]; stags1[s] = s; ftags1[f] = f };
+	split(tag2, ntags2, " "); for (i in ntags2) { s = "<" ntags2[i]; f = "</" ntags2[i]; stags2[s] = s; ftags2[f] = f };
 } {
 
 intag = match($0, "[> ]");
@@ -24,19 +24,19 @@ if ( $0 == "<\x2fpublisher>" ) { sw = "decrease"; inc = 1 };
 
 switch (sw) {
 case "increase":
-	$0 = sprintf ( "%s%s", padding, $0 );
-	pad += inc; padding = sprintf ("%" pad "s", "");
+	$0 = sprintf( "%s%s", padding, $0 );
+	pad += inc; padding = sprintf("%" pad "s", "");
 	break;
 case "decrease":
-	pad -= inc; padding = sprintf ("%" pad "s", "");
-	$0 = sprintf ( "%s%s", padding, $0 );
+	pad -= inc; padding = sprintf("%" pad "s", "");
+	$0 = sprintf( "%s%s", padding, $0 );
 	break;
 case "sticky":
 	pad = 0; padding = "";
-	$0 = sprintf ( "%s%s", padding, $0 );
+	$0 = sprintf( "%s%s", padding, $0 );
 	break;
 default:
-	$0 = sprintf ( "%s%s", padding, $0);
+	$0 = sprintf( "%s%s", padding, $0);
 	};
 
 if ( $0 !~ /^[ \t]*$/ ) { print $0 };

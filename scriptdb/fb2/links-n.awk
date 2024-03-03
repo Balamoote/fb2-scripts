@@ -34,7 +34,7 @@ while (match(book[b], /(<a) (l:href="#n_)([0-9]+)(" type="note">\[)([0-9]+)(\]<\
     book[b] = gensub("!Ъ_@Ь#Ь@_Ъ!", " ", "g", book[b])
     clen = length(book[b])
 
-while (match (book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) > 0 ) {
+while (match(book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) > 0 ) {
 
     if ( lynks[lyn[3]] == "" )
         { printf ( "%s %s\n", "Ни одна сноска не ссылается на секцию", lyn[3] ); xit++ };
@@ -61,12 +61,12 @@ if (se = length(selinks)) { printf ("%s %s\n","Сиротские секции:"
 if ( xit > 0 ) { printf ("%s %s %s\n", "Найдено", xit, "ошибок. Обработка прекращена."); exit };
 
 for ( b=1; b <= num; b++ ) { 
-        if ( match (book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) == 0 && b < num )
+        if ( match(book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) == 0 && b < num )
              { startbook = startbook book[b] }
         else { lynsec[lyn[3]] = book[b] };
-        if ( match (book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) == 0 && b == num )
+        if ( match(book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) == 0 && b == num )
              { endbook = book[b] };
-        if ( match (book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) > 0 && b == num )
+        if ( match(book[b], /(<section) (id="n_)([0-9]+)(">\n\s*<title>\n\s*<p>)([0-9]+)(<\/p>)/, lyn) > 0 && b == num )
              { split(book[b], lnote, "</section>\n"); lynsec[lyn[3]] = lnote[1] "</section>\n"; endbook = lnote[2]};
         }
 
