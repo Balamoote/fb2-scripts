@@ -72,8 +72,8 @@ case $key in
 
         cat $suf-"$book"/text-book.txt $suf-"$book"/binary-book.txt > "$book"
         rm -rf $suf-"$book"
-	# Валидация и раскраска отчёта
-	xmllint --nonet --noout --schema "scriptdb/fb2/schema/FictionBook.xsd" "$book" 2>&1 | \
+       # Валидация и раскраска отчёта
+            xmllint --nonet --noout --schema "scriptdb/fb2/schema/FictionBook.xsd" "$book" 2>&1 | \
             sed -r "s=\{http://www\.gribuser\.ru/xml/fictionbook/2\.0\}==gI
 	                  s=^.*\svalidates$=`printf "\e[32m&\e[0m"`=g
                     s=^.*\sfails to validate.*$=`printf "\e[31m&\e[0m"`=g
@@ -94,8 +94,8 @@ case $key in
         backup="$book".$suf
 
         d2u;
-	sed -i -rf "$sed_links_uni" "$book"
-	awk -v ofile="$book" -f $awk_links_n "$book"
+        sed -i -rf "$sed_links_uni" "$book"
+        awk -v ofile="$book" -f $awk_links_n "$book"
         ;;
     -stal | -st0) # Вывести структуру fb2: основные тэги + заголовки + сноски тексте + картинки
         awk -v maintags=1 -v titltags=1 -v linktags=1 -v imgstags=1 -f scriptdb/fb2/structure.awk "$book"
@@ -116,7 +116,7 @@ case $key in
         #    echo "$charlist" | iconv -f utf8 -t utf32le | hexdump -v -e '20/4 "%04x " "\n"'
         wrp=16
         printf '%s' "$charlist" |while IFS= read -d $'\000' -n 1 x; do r=$(($r+1));
-            unc=$(printf '%s' "$x" | sed 's=[\xcc\x81\xcc\xa0\xcc\xa3\xcc\xa4\xcc\xad\xcc\xb0]=multibit=')
+            unc=$(printf '%s' "$x" | sed 's=[\xcc\x80\xcc\x81\xcc\xa0\xcc\xa3\xcc\xa4\xcc\xad\xcc\xb0]=multibit=')
             if [[ "$unc" == "multibit" ]]; then printf '\e[92m %s \e[33m%4x\e[0m|' "$x" "'$x"; else printf '\e[36m%s \e[33m%4x\e[0m|' "$x" "'$x"; fi
             if [[ $r -eq $wrp ]]; then r=0; printf "\n"; fi; done; printf "\n"
         ;;
@@ -128,7 +128,7 @@ case $key in
         #    echo "$charlist" | iconv -f utf8 -t utf32le | hexdump -v -e '20/4 "%04x " "\n"'
         wrp=16
         printf '%s' "$charlist" |while IFS= read -d $'\000' -n 1 x; do r=$(($r+1));
-            unc=$(printf '%s' "$x" | sed 's=[\x00-\x1f\xcc\x81\xcc\xa0\xcc\xa3\xcc\xa4\xcc\xad\xcc\xb0]=multibit=')
+            unc=$(printf '%s' "$x" | sed 's=[\x00-\x1f\xcc\x80\xcc\x81\xcc\xa0\xcc\xa3\xcc\xa4\xcc\xad\xcc\xb0]=multibit=')
             if [[ "$unc" == "multibit" ]]; then printf ' %s %4x|' "$x" "'$x"; else printf '%s %4x|' "$x" "'$x"; fi
             if [[ $r -eq $wrp ]]; then r=0; printf "\n"; fi; done;
         ;;
