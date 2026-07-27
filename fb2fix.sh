@@ -6,11 +6,14 @@ mo_time0=$(date +%s.%N);
 key=$1
 book=$2
 
+aux="scriptaux"
+sdb="scriptdb"
+
 # Установка редактора: vim или neovim
-edi=$(sed -rn 's/^\s*editor\s*=\s*(vim|nvim)\s*$/\1/ p' scriptdb/settings.ini)
+edi=$(sed -rn 's/^\s*editor\s*=\s*(vim|nvim)\s*$/\1/ p' $sdb/settings.ini)
 
 #массив со списком ключей
-p="-gc -06 -stal -st0 -ston -st1 -stln -st2 -stim -st3"
+p="-gc -06 -lnun -lu -stal -st0 -ston -st1 -stln -st2 -stim -st3 -ch -ch0 -char -chnc"
 read -a param <<< $p
 
 makebk () { if [[ ! -d $suf-"$book" ]]; then mkdir $suf-"$book"; else rm -rf  $suf-"$book" && mkdir $suf-"$book"; fi; }
@@ -23,12 +26,12 @@ case $key in
     -gc | -06) # Запустить скрипт "генеральная уборка" (без функции паддинга тэгов)
         export LC_ALL=ru_RU.UTF-8
         suf=06 
-        sed_pre="scriptdb/fb2/06_gc_pre.sed"
-        sed_main="scriptdb/fb2/06_gc_main.sed"
-        sed_post="scriptdb/fb2/06_gc_post.sed"
-        sed_latcyr="scriptdb/fb2/06_latcyr.sed"
-        awk_cleaner="scriptdb/fb2/cleaner.awk"
-        awk_indent="scriptdb/fb2/indent.awk"
+        sed_pre="$sdb/fb2/06_gc_pre.sed"
+        sed_main="$sdb/fb2/06_gc_main.sed"
+        sed_post="$sdb/fb2/06_gc_post.sed"
+        sed_latcyr="$sdb/fb2/06_latcyr.sed"
+        awk_cleaner="$sdb/fb2/cleaner.awk"
+        awk_indent="$sdb/fb2/indent.awk"
         backup="$book".$suf
         export sib="<emphasis>|<strong>|<emphasis><strong>|<strong><emphasis>"
         export fib="</emphasis>|</strong>|</emphasis></strong>|</strong></emphasis>"
@@ -46,19 +49,21 @@ case $key in
         # Фикс римских цифр, записанных кириллицей
 	if grep -q -m 1 "[CILMVX]" $suf-"$book"/text-book.txt; then latcyr=1
         while [ $latcyr != "0" ]
-        do sed -ri "s=Х([CILMVX])=X\1=g
-                    s=([CILMVX])Х=\1X=g
-                    s=І([CILMVX])=I\1=g
-                    s=([CILMVX])І=\1I=g
+        do sed -ri "s=[ХΧ]([CILMVX])=X\1=g
+                    s=([CILMVX])[ХΧ]=\1X=g
+                    s=[ІΙ]([CILMVX])=I\1=g
+                    s=([CILMVX])[ІΙ]=\1I=g
                     s=С([CILMVX])=C\1=g
                     s=([CILMVX])С=\1C=g
-                    s=М([CILMVX])=M\1=g
-                    s=([CILMVX])М=\1M=g
-                    s=ХХ=XX=g
-                    s=ІІ=II=g
+                    s=[МΜ]([CILMVX])=M\1=g
+                    s=([CILMVX])[МΜ]=\1M=g
+                    s=[ХΧ][ХΧ]=XX=g
+                    s=[ХΧ][ІΙ]=XX=g
+                    s=[ІΙ][ХΧ]=XX=g
+                    s=[ІΙ][ІΙ]=II=g
                     " $suf-"$book"/text-book.txt
 
-            latcyr=$(grep -e "[ХІСМ][CILMVX]" -e "[CILMVX][ХІС]" -e "ХХ" -e "ІІ" $suf-"$book"/text-book.txt | wc -l)
+            latcyr=$(grep -e "[ХΧІΙСМΜ][CILMVX]" -e "[CILMVX][ХΧІΙСМΜ]" -e "[ХΧ][ХΧ]" -e "[ІΙ][ІΙ]" $suf-"$book"/text-book.txt | wc -l)
         done; fi
 
 	# Кириллица в латинице: искать до упора
@@ -67,13 +72,12 @@ case $key in
             mdchk0=$(md5sum $suf-"$book"/text-book.txt | awk '{print $1}')
             sed -i -rf "$sed_latcyr" $suf-"$book"/text-book.txt;
             mdchk1=$(md5sum $suf-"$book"/text-book.txt | awk '{print $1}')
-        done
-	fi
+        done; fi
 
         cat $suf-"$book"/text-book.txt $suf-"$book"/binary-book.txt > "$book"
         rm -rf $suf-"$book"
        # Валидация и раскраска отчёта
-            xmllint --nonet --noout --schema "scriptdb/fb2/schema/FictionBook.xsd" "$book" 2>&1 | \
+            xmllint --nonet --noout --schema "$sdb/fb2/schema/FictionBook.xsd" "$book" 2>&1 | \
             sed -r "s=\{http://www\.gribuser\.ru/xml/fictionbook/2\.0\}==gI
 	                  s=^.*\svalidates$=`printf "\e[32m&\e[0m"`=g
                     s=^.*\sfails to validate.*$=`printf "\e[31m&\e[0m"`=g
@@ -81,16 +85,17 @@ case $key in
                     s=^.*\sparser error.*$=`printf "\e[93m&\e[0m"`=g
                     "
        # Сравнение исходного и обработанного файлов, если не нужно - закомментировать следующие 3 строки. 
-        sed -r 's/\xc2\xa0/ /g' "$book" > "$book".gc
-        $edi -d "$book".gc "$backup"
-        rm "$book".gc
+        sed -r "s=\xc2\xa0= =g; s=^\s+==g" "$book" > "$book".res
+        sed -r "s=\xc2\xa0= =g; s=^\s+==g" "$backup" > "$book".init
+        $edi -d "$book".init "$book".res -c "windo set wrap"
+        rm "$book".init "$book".res
         ;;
 
     -lnun | -lu) # Сквозная сортировка сносок типа n_[0-9]+ и их <section id=, базовая проверка ссылок
         export LC_ALL=ru_RU.UTF-8
         suf=01 
-        sed_links_uni="scriptdb/fb2/01_links_uni.sed"
-        awk_links_n="scriptdb/fb2/links-n.awk"
+        sed_links_uni="$sdb/fb2/01_links_uni.sed"
+        awk_links_n="$sdb/fb2/links-n.awk"
         backup="$book".$suf
 
         d2u;
@@ -98,19 +103,19 @@ case $key in
         awk -v ofile="$book" -f $awk_links_n "$book"
         ;;
     -stal | -st0) # Вывести структуру fb2: основные тэги + заголовки + сноски тексте + картинки
-        awk -v maintags=1 -v titltags=1 -v linktags=1 -v imgstags=1 -f scriptdb/fb2/structure.awk "$book"
+        awk -v maintags=1 -v titltags=1 -v linktags=1 -v imgstags=1 -f $sdb/fb2/structure.awk "$book"
         ;;
     -ston | -st1) # Вывести структуру fb2: основные тэги + заголовки
-        awk -v maintags=1 -v titltags=1 -f scriptdb/fb2/structure.awk "$book"
+        awk -v maintags=1 -v titltags=1 -f $sdb/fb2/structure.awk "$book"
         ;;
-    -stln | -st3) # Вывести структуру fb2: только сноски в тексте
-        awk -v linktags=1 -f scriptdb/fb2/structure.awk "$book"
+    -stln | -st2) # Вывести структуру fb2: только сноски в тексте
+        awk -v linktags=1 -f $sdb/fb2/structure.awk "$book"
         ;;
-    -stim | -st4) # Вывести структуру fb2: только тэги картинок
-        awk -v imgstags=1 -f scriptdb/fb2/structure.awk "$book"
+    -stim | -st3) # Вывести структуру fb2: только тэги картинок
+        awk -v imgstags=1 -f $sdb/fb2/structure.awk "$book"
         ;;
 
-    -ch | -char) # Вывести список всех символов в файле
+    -ch | -char) # Вывести список всех символов в файле (в цвете)
         charlist=$(awk '{for (i=1; i<=NF; i++) {a[$i]++}} END{for (i in a) print i}' FS="" ORS="\n" "$book" | sort -u | tr -d "\n")
         printf '\e[32m%s\e[0m\n' "$charlist"
         #    echo "$charlist" | iconv -f utf8 -t utf32le | hexdump -v -e '20/4 "%04x " "\n"'
@@ -133,5 +138,5 @@ case $key in
             if [[ $r -eq $wrp ]]; then r=0; printf "\n"; fi; done;
         ;;
     *) # Нечто другое
-        printf '\e[32m%s\e[0m\n' "Задайте правильный ключ!"; exit 0 ;;
+        printf '\e[32m%s\e[0m\n' "Задайте правильный ключ. Например: ./fb2fix.sh -gc book.fb2"; exit 0 ;;
 esac
